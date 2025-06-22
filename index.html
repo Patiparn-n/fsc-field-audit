@@ -313,10 +313,8 @@
         };
 
         // Conditional Form Logic
-        document.getElementById('systemArea').addEventListener('input', checkAreaDifference);
-        document.getElementById('actualArea').addEventListener('input', checkAreaDifference);
-        document.getElementById('systemCoords').addEventListener('input', checkCoordsDistance);
-        document.getElementById('actualCoords').addEventListener('input', checkCoordsDistance);
+        ['systemArea', 'actualArea'].forEach(id => document.getElementById(id).addEventListener('input', checkAreaDifference));
+        ['systemCoords', 'actualCoords'].forEach(id => document.getElementById(id).addEventListener('input', checkCoordsDistance));
         
         document.getElementById('ownerCutsSelf').addEventListener('change', (e) => {
             const contractorWrapper = document.getElementById('contractor-name-wrapper');
