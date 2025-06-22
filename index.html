@@ -47,7 +47,7 @@
                         </tr>
                     </thead>
                     <tbody id="audit-table-body">
-                        <tr><td colspan="6" class="text-center p-8 text-gray-500">กำลังโหลดข้อมูล...</td></tr>
+                        <tr><td colspan="6" class="text-center p-8 text-gray-500">กำลังเชื่อมต่อฐานข้อมูล...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -286,8 +286,8 @@
         });
         
         async function logResultToSheet(data) {
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbztjCpux5RyA7GepBKEALNMDKWz3HgEwf_HOmolId2bfXWXIpqxpc89-ZSx_oMIWX1x/exec'; 
-            if (scriptURL === 'https://script.google.com/macros/s/AKfycbztjCpux5RyA7GepBKEALNMDKWz3HgEwf_HOmolId2bfXWXIpqxpc89-ZSx_oMIWX1x/exec') { return; }
+            const scriptURL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE'; 
+            if (scriptURL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') { return; }
             const formData = new FormData();
             const dataForSheet = { 
                 ...data, 
