@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FSC Field Audit Application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #f4f4f5; }
+        .modal-backdrop { background-color: rgba(0,0,0,0.5); transition: opacity 0.3s ease; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="min-h-screen bg-gray-100">
+        <!-- Header -->
+        <header class="bg-[#009A44] text-white shadow-md">
+            <div class="container mx-auto px-6 py-4">
+                <h1 class="text-2xl font-bold">FSC Field Audit Application</h1>
+                <p class="text-sm">ระบบบันทึกข้อมูลการตรวจประเมินแปลงไม้</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-6 py-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold text-gray-700">ประวัติการบันทึกข้อมูล</h2>
+                <button onclick="openModal('add-audit-modal')" class="bg-[#009A44] text-white py-2 px-5 rounded-lg hover:bg-[#007A33] transition font-semibold">
+                    + เพิ่มบันทึกใหม่
+                </button>
+            </div>
+
+            <!-- Audit Table -->
+            <div class="bg-white p-2 md:p-6 rounded-lg shadow-md overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">วันที่</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">รหัสลูกค้า</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">ชื่อลูกค้า</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">ผู้ตรวจ</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">ผู้รับผิดชอบ</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="audit-table-body">
+                        <tr><td colspan="6" class="text-center p-8 text-gray-500">กำลังโหลดข้อมูล...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Audit Modal -->
+    <div id="add-audit-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center hidden opacity-0 z-50 p-4">
+        <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <h3 class="text-2xl font-semibold mb-6">บันทึกข้อมูลการตรวจประเมินแปลงไม้</h3>
+            <form id="add-audit-form">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
+                    <!-- Section 1 -->
+                    <div class="lg:col-span-4"><h4 class="font-bold text-lg text-gray-700 border-b pb-2 mb-4">ข้อมูลทั่วไป</h4></div>
+                    <div><label class="block mb-1 font-medium">เจ้าหน้าที่ผู้ตรวจ:</label><input type="text" id="auditorName" required class="w-full p-2 border rounded-md"></div>
+                    <div><label class="block mb-1 font-medium">วันที่ตรวจ:</label><input type="date" id="auditDate" required class="w-full p-2 border rounded-md"></div>
+                    <div class="md:col-span-2"><label class="block mb-1 font-medium">พนักงานผู้รับผิดชอบลูกค้า:</label><input type="text" id="responsibleStaff" required class="w-full p-2 border rounded-md"></div>
+
+                    <!-- Section 2 -->
+                    <div class="lg:col-span-4"><h4 class="font-bold text-lg text-gray-700 border-b pb-2 mb-4 mt-4">ข้อมูลลูกค้าและแปลงไม้</h4></div>
+                    <div><label class="block mb-1 font-medium">รหัสลูกค้า:</label><input type="text" id="customerCode" required class="w-full p-2 border rounded-md" placeholder="FSC-XXXXX"></div>
+                    <div class="lg:col-span-3"><label class="block mb-1 font-medium">ชื่อ-สกุล ลูกค้า:</label><input type="text" id="customerName" required class="w-full p-2 border rounded-md"></div>
+                    
+                    <div class="lg:col-span-4 grid grid-cols-1 lg:grid-cols-4 gap-x-6 gap-y-4">
+                        <div><label class="block mb-1 font-medium">รหัสแปลงไม้:</label><input type="text" id="plotId" required class="w-full p-2 border rounded-md"></div>
+                        <div><label class="block mb-1 font-medium">หมู่ที่:</label><input type="text" id="moo" class="w-full p-2 border rounded-md"></div>
+                        <div><label class="block mb-1 font-medium">ตำบล:</label><input type="text" id="tambon" required class="w-full p-2 border rounded-md"></div>
+                        <div><label class="block mb-1 font-medium">อำเภอ:</label><input type="text" id="amphoe" required class="w-full p-2 border rounded-md"></div>
+                        <div><label class="block mb-1 font-medium">จังหวัด:</label><input type="text" id="province" required class="w-full p-2 border rounded-md"></div>
+                        <div class="lg:col-span-2">
+                            <label class="block mb-1 font-medium">ประเภทเอกสารสิทธิ:</label>
+                            <select id="docType" class="w-full p-2 border rounded-md bg-white">
+                                <option value="โฉนด">โฉนด</option><option value="สปก.">สปก.</option><option value="Map Polygon">Map Polygon</option><option value="อื่นๆ">เอกสารสิทธิ์ชนิดอื่น</option>
+                            </select>
+                        </div>
+                        <div id="doc-type-other-wrapper" class="hidden"><label class="block mb-1 font-medium">โปรดระบุ:</label><input type="text" id="docTypeOther" class="w-full p-2 border rounded-md"></div>
+                    </div>
+
+                    <div class="lg:col-span-4 border-t pt-4 mt-2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+                            <div><label class="block mb-1 font-medium">ขนาดแปลงในระบบ (ไร่):</label><input type="number" step="0.01" id="systemArea" required class="w-full p-2 border rounded-md"></div>
+                            <div><label class="block mb-1 font-medium">ขนาดที่วัดได้ (ไร่):</label><input type="number" step="0.01" id="actualArea" required class="w-full p-2 border rounded-md"></div>
+                        </div>
+                    </div>
+                    <div id="area-diff-reason-wrapper" class="hidden lg:col-span-4"><label class="block mb-1 font-medium text-red-600">เหตุผลที่ขนาดต่างกัน >10%:</label><textarea id="areaDiffReason" rows="2" class="w-full p-2 border-red-300 border rounded-md"></textarea></div>
+                    
+                    <div class="lg:col-span-4 border-t pt-4 mt-2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+                            <div><label class="block mb-1 font-medium">พิกัดแปลงในระบบ (lat,lon):</label><input type="text" id="systemCoords" required class="w-full p-2 border rounded-md" placeholder="13.7, 100.5"></div>
+                            <div><label class="block mb-1 font-medium">พิกัดแปลงจริง (lat,lon):</label><div class="flex gap-2"><input type="text" id="actualCoords" required class="w-full p-2 border rounded-md"><button type="button" id="get-location-btn" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">📍</button></div></div>
+                        </div>
+                    </div>
+                    <div id="coords-diff-reason-wrapper" class="hidden lg:col-span-4"><label class="block mb-1 font-medium text-red-600">เหตุผลที่พิกัดต่างกัน >1 กม. (<span id="distance-output" class="font-bold"></span>):</label><textarea id="coordsDiffReason" rows="2" class="w-full p-2 border-red-300 border rounded-md"></textarea></div>
+                    
+                    <div class="lg:col-span-4"><h4 class="font-bold text-lg text-gray-700 border-b pb-2 mb-4 mt-6">ข้อมูลเพิ่มเติม</h4></div>
+                    <div class="lg:col-span-4"><div class="flex items-center"><input type="checkbox" id="ownerCutsSelf" class="h-5 w-5 rounded"><label for="ownerCutsSelf" class="ml-2">เจ้าของแปลงไม้ตัดเอง</label></div></div>
+                    <div id="contractor-name-wrapper" class="lg:col-span-4"><label class="block mb-1 font-medium">ชื่อผู้รับเหมา:</label><input type="text" id="contractorName" class="w-full p-2 border rounded-md"></div>
+                    
+                    <div class="lg:col-span-4 grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
+                        <div><label class="block mb-1 font-medium">โรงงานปลายทาง:</label><input type="text" id="destinationMill" required class="w-full p-2 border rounded-md"></div>
+                        <div><label class="block mb-1 font-medium">ระยะทางถึงโรงงาน (กม.):</label><input type="number" step="1" id="distanceToMill" required class="w-full p-2 border rounded-md"></div>
+                        <div><label class="block mb-1 font-medium">ผลการประเมินความเสี่ยง:</label><select id="riskAssessment" required class="w-full p-2 border rounded-md bg-white"><option value="ต่ำ">ต่ำ</option><option value="ปานกลาง">ปานกลาง</option><option value="สูง">สูง</option></select></div>
+                    </div>
+                    
+                    <div class="lg:col-span-4"><label class="block mb-1 font-medium">รายละเอียดการตรวจเยี่ยม:</label><textarea id="auditDetails" rows="3" class="w-full p-2 border rounded-md"></textarea></div>
+                    
+                    <div class="lg:col-span-4"><h4 class="font-bold text-lg text-gray-700 border-b pb-2 mb-4 mt-6">รูปภาพประกอบ (ต้องแนบอย่างน้อย 2 รูป)</h4></div>
+                    <div class="lg:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label class="block mb-1 font-medium">รูปภาพที่ 1:</label><input type="file" id="auditImage1" accept="image/*" required class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"><img id="image-preview1" src="" class="mt-2 max-h-40 rounded-lg hidden" alt="Preview 1"/></div>
+                        <div><label class="block mb-1 font-medium">รูปภาพที่ 2:</label><input type="file" id="auditImage2" accept="image/*" required class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"><img id="image-preview2" src="" class="mt-2 max-h-40 rounded-lg hidden" alt="Preview 2"/></div>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-4 mt-8">
+                    <button type="button" onclick="closeModal('add-audit-modal')" class="bg-gray-200 py-2 px-4 rounded-lg">ยกเลิก</button>
+                    <button type="submit" id="submit-btn" class="bg-[#009A44] text-white py-2 px-4 rounded-lg flex items-center">
+                        <span id="submit-text">บันทึกข้อมูล</span>
+                        <span id="submit-spinner" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin ml-2"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, Timestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getStorage, ref, uploadString, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "DEMO", authDomain: "DEMO", projectId: "DEMO", storageBucket: "DEMO" };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'fsc-field-audit-app-default';
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        
+        let userId = null;
+        let auditsUnsubscribe = null;
+        let imageDataUrl1 = null;
+        let imageDataUrl2 = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) { userId = user.uid; loadAudits(); } 
+            else {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { await signInWithCustomToken(auth, __initial_auth_token); } 
+                else { await signInAnonymously(auth); }
+            }
+        });
+
+        const auditCollectionPath = `/artifacts/${appId}/public/data/fieldAudits`;
+        window.openModal = (modalId) => {
+            document.getElementById('add-audit-form').reset();
+            document.getElementById('image-preview1').classList.add('hidden');
+            document.getElementById('image-preview2').classList.add('hidden');
+            ['area-diff-reason-wrapper', 'coords-diff-reason-wrapper', 'contractor-name-wrapper', 'doc-type-other-wrapper'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById('contractor-name-wrapper').classList.remove('hidden'); // Show by default
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        };
+        window.closeModal = (modalId) => {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        };
+
+        function loadAudits() {
+            if (!userId) return;
+            if (auditsUnsubscribe) auditsUnsubscribe();
+            const q = query(collection(db, auditCollectionPath), orderBy("auditDate", "desc"));
+            auditsUnsubscribe = onSnapshot(q, (snapshot) => {
+                const body = document.getElementById('audit-table-body');
+                body.innerHTML = '';
+                if (snapshot.empty) { body.innerHTML = `<tr><td colspan="6" class="text-center p-8 text-gray-500">ยังไม่มีข้อมูลการตรวจแปลง</td></tr>`; return; }
+                snapshot.forEach((doc) => {
+                    const d = doc.data();
+                    const auditDate = d.auditDate.toDate().toLocaleDateString('th-TH');
+                    body.innerHTML += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 border-b">${auditDate}</td>
+                            <td class="px-4 py-3 border-b">${d.customerCode}</td>
+                            <td class="px-4 py-3 border-b">${d.customerName}</td>
+                            <td class="px-4 py-3 border-b">${d.auditorName || '-'}</td>
+                            <td class="px-4 py-3 border-b">${d.responsibleStaff || '-'}</td>
+                            <td class="px-4 py-3 border-b text-right"><button onclick="deleteAudit('${doc.id}', '${JSON.stringify(d.imagePaths || [])}')" class="text-red-500 hover:text-red-700">ลบ</button></td>
+                        </tr>`;
+                });
+            });
+        }
+        
+        const setupImagePreview = (inputId, previewId) => {
+            document.getElementById(inputId).addEventListener('change', (e) => {
+                const file = e.target.files[0]; if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    if (inputId === 'auditImage1') imageDataUrl1 = event.target.result;
+                    if (inputId === 'auditImage2') imageDataUrl2 = event.target.result;
+                    document.getElementById(previewId).src = event.target.result;
+                    document.getElementById(previewId).classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            });
+        };
+        setupImagePreview('auditImage1', 'image-preview1');
+        setupImagePreview('auditImage2', 'image-preview2');
+
+        document.getElementById('add-audit-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            document.getElementById('submit-text').classList.add('hidden');
+            document.getElementById('submit-spinner').classList.remove('hidden');
+
+            try {
+                const uploadImage = async (imageDataUrl, idSuffix) => {
+                    if (!imageDataUrl) return { url: '', path: '' };
+                    const filePath = `field_audit_images/${Date.now()}_${document.getElementById('plotId').value}_${idSuffix}.jpg`;
+                    const storageRef = ref(storage, filePath);
+                    const uploadResult = await uploadString(storageRef, imageDataUrl, 'data_url');
+                    const url = await getDownloadURL(uploadResult.ref);
+                    return { url, path: filePath };
+                };
+                
+                const [img1, img2] = await Promise.all([
+                    uploadImage(imageDataUrl1, '1'),
+                    uploadImage(imageDataUrl2, '2')
+                ]);
+
+                let docType = document.getElementById('docType').value;
+                if (docType === 'อื่นๆ') docType = document.getElementById('docTypeOther').value || 'อื่นๆ (ไม่ระบุ)';
+                
+                const auditData = {
+                    auditDate: Timestamp.fromDate(new Date(document.getElementById('auditDate').value)),
+                    auditorName: document.getElementById('auditorName').value,
+                    responsibleStaff: document.getElementById('responsibleStaff').value,
+                    customerCode: document.getElementById('customerCode').value,
+                    plotId: document.getElementById('plotId').value,
+                    customerName: document.getElementById('customerName').value,
+                    ownerCutsSelf: document.getElementById('ownerCutsSelf').checked,
+                    contractorName: document.getElementById('ownerCutsSelf').checked ? '' : document.getElementById('contractorName').value,
+                    docType: docType,
+                    systemArea: parseFloat(document.getElementById('systemArea').value || 0),
+                    actualArea: parseFloat(document.getElementById('actualArea').value || 0),
+                    areaDiffReason: document.getElementById('areaDiffReason').value,
+                    plotAddress: {
+                        moo: document.getElementById('moo').value,
+                        tambon: document.getElementById('tambon').value,
+                        amphoe: document.getElementById('amphoe').value,
+                        province: document.getElementById('province').value
+                    },
+                    systemCoords: document.getElementById('systemCoords').value,
+                    actualCoords: document.getElementById('actualCoords').value,
+                    coordsDiffReason: document.getElementById('coordsDiffReason').value,
+                    riskAssessment: document.getElementById('riskAssessment').value,
+                    destinationMill: document.getElementById('destinationMill').value,
+                    distanceToMill: parseFloat(document.getElementById('distanceToMill').value || 0),
+                    auditDetails: document.getElementById('auditDetails').value,
+                    imageUrls: [img1.url, img2.url].filter(url => url),
+                    imagePaths: [img1.path, img2.path].filter(path => path),
+                    createdAt: Timestamp.now()
+                };
+                
+                await addDoc(collection(db, auditCollectionPath), auditData);
+                await logResultToSheet(auditData);
+                closeModal('add-audit-modal');
+            } catch (error) {
+                console.error("Error saving data:", error);
+                alert("เกิดข้อผิดพลาด: " + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                document.getElementById('submit-text').classList.remove('hidden');
+                document.getElementById('submit-spinner').classList.add('hidden');
+                imageDataUrl1 = null;
+                imageDataUrl2 = null;
+            }
+        });
+        
+        async function logResultToSheet(data) {
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbztjCpux5RyA7GepBKEALNMDKWz3HgEwf_HOmolId2bfXWXIpqxpc89-ZSx_oMIWX1x/exec'; 
+            if (scriptURL === 'https://script.google.com/macros/s/AKfycbztjCpux5RyA7GepBKEALNMDKWz3HgEwf_HOmolId2bfXWXIpqxpc89-ZSx_oMIWX1x/exec') { return; }
+            const formData = new FormData();
+            const dataForSheet = { 
+                ...data, 
+                imageUrl1: data.imageUrls[0] || '', 
+                imageUrl2: data.imageUrls[1] || '',
+                fullAddress: `${data.plotAddress.moo || ''} ${data.plotAddress.tambon || ''} ${data.plotAddress.amphoe || ''} ${data.plotAddress.province || ''}`.trim()
+            };
+            delete dataForSheet.createdAt; delete dataForSheet.imageUrls; delete dataForSheet.imagePaths; delete dataForSheet.plotAddress;
+
+            formData.append('timestamp', new Date().toLocaleString('th-TH'));
+            Object.keys(dataForSheet).forEach(key => formData.append(key, dataForSheet[key] instanceof Timestamp ? dataForSheet[key].toDate().toLocaleDateString('th-TH') : dataForSheet[key]));
+            try { await fetch(scriptURL, { method: 'POST', body: formData, mode: 'no-cors' }); } 
+            catch (error) { console.error('Error logging to Google Sheet:', error); }
+        }
+        
+        window.deleteAudit = async (docId, imagePathsStr) => {
+            if (confirm('ยืนยันการลบข้อมูลการตรวจแปลงนี้?')) {
+                try {
+                    const imagePaths = JSON.parse(imagePathsStr);
+                    if (imagePaths && imagePaths.length > 0) { await Promise.all(imagePaths.map(path => deleteObject(ref(storage, path)))); }
+                    await deleteDoc(doc(db, auditCollectionPath, docId));
+                } catch(error) { console.error("Error deleting record: ", error); }
+            }
+        };
+
+        // Conditional Form Logic
+        document.getElementById('systemArea').addEventListener('input', checkAreaDifference);
+        document.getElementById('actualArea').addEventListener('input', checkAreaDifference);
+        document.getElementById('systemCoords').addEventListener('input', checkCoordsDistance);
+        document.getElementById('actualCoords').addEventListener('input', checkCoordsDistance);
+        
+        document.getElementById('ownerCutsSelf').addEventListener('change', (e) => {
+            const contractorWrapper = document.getElementById('contractor-name-wrapper');
+            contractorWrapper.classList.toggle('hidden', e.target.checked);
+            if (e.target.checked) {
+                document.getElementById('contractorName').value = '';
+            }
+        });
+        document.getElementById('docType').addEventListener('change', (e) => {
+            document.getElementById('doc-type-other-wrapper').classList.toggle('hidden', e.target.value !== 'อื่นๆ');
+        });
+
+        function checkAreaDifference() {
+            const systemArea = parseFloat(document.getElementById('systemArea').value) || 0;
+            const actualArea = parseFloat(document.getElementById('actualArea').value) || 0;
+            const wrapper = document.getElementById('area-diff-reason-wrapper');
+            if (systemArea === 0 || actualArea === 0) {
+                wrapper.classList.add('hidden');
+                return;
+            }
+            const percentageDiff = (Math.abs(systemArea - actualArea) / systemArea) * 100;
+            wrapper.classList.toggle('hidden', percentageDiff <= 10);
+        }
+
+        function checkCoordsDistance() {
+            const parse = (str) => {
+                const parts = str.split(',').map(s => parseFloat(s.trim()));
+                return (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) ? parts : null;
+            };
+            const system = parse(document.getElementById('systemCoords').value);
+            const actual = parse(document.getElementById('actualCoords').value);
+            const wrapper = document.getElementById('coords-diff-reason-wrapper');
+            const output = document.getElementById('distance-output');
+
+            if (system && actual) {
+                const dist = getDistanceFromLatLonInKm(system[0], system[1], actual[0], actual[1]);
+                if (output) output.textContent = `ระยะห่าง ${dist.toFixed(2)} กม.`;
+                wrapper.classList.toggle('hidden', dist <= 1);
+            } else {
+                wrapper.classList.add('hidden');
+            }
+        }
+
+        function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * (Math.PI / 180);
+            const dLon = (lon2 - lon1) * (Math.PI / 180);
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+        }
+        
+        document.getElementById('get-location-btn').addEventListener('click', () => {
+             if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude.toFixed(6);
+                        const lon = position.coords.longitude.toFixed(6);
+                        document.getElementById('actualCoords').value = `${lat}, ${lon}`;
+                        checkCoordsDistance(); // Check distance after getting location
+                    },
+                    (error) => alert(`ไม่สามารถดึงตำแหน่งได้: ${error.message}`)
+                );
+            } else { alert("เบราว์เซอร์ของคุณไม่รองรับ Geolocation"); }
+        });
+    </script>
+</body>
+</html>
