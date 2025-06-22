@@ -163,7 +163,7 @@
             document.getElementById('image-preview1').classList.add('hidden');
             document.getElementById('image-preview2').classList.add('hidden');
             ['area-diff-reason-wrapper', 'coords-diff-reason-wrapper', 'contractor-name-wrapper', 'doc-type-other-wrapper'].forEach(id => document.getElementById(id).classList.add('hidden'));
-            document.getElementById('contractor-name-wrapper').classList.remove('hidden'); // Show by default
+            document.getElementById('contractor-name-wrapper').classList.remove('hidden'); 
             const modal = document.getElementById(modalId);
             modal.classList.remove('hidden');
             setTimeout(() => modal.classList.remove('opacity-0'), 10);
@@ -286,8 +286,7 @@
         });
         
         async function logResultToSheet(data) {
-            const scriptURL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE'; 
-            if (scriptURL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') { return; }
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbztjCpux5RyA7GepBKEALNMDKWz3HgEwf_HOmolId2bfXWXIpqxpc89-ZSx_oMIWX1x/exec'; 
             const formData = new FormData();
             const dataForSheet = { 
                 ...data, 
